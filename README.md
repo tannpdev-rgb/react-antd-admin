@@ -11,7 +11,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/condorheroblog/react-antd-admin?color=fa6470&style=flat)
 ![GitHub forks](https://img.shields.io/github/forks/condorheroblog/react-antd-admin?style=flat)
 
-**English** | [中文](./README.zh-CN.md)
+**English** | [中文](./README.zh-CN.md)  | [Vietnamese](./README.zh-VN.md)
 
 ## Introduction
 
