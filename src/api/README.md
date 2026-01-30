@@ -1,23 +1,29 @@
-## api 目录介绍
+## Giới thiệu thư mục api
 
-> api 目录存放所有请求接口文件，按照页面划分目录，一个页面对应一个目录，目录可以嵌套，但目录下的文件需要包含请求接口文件和类型定义文件。
+> Thư mục `api` dùng để lưu trữ toàn bộ các file gọi API. Cấu trúc được chia theo từng trang, mỗi trang tương ứng với một thư mục.
+> Các thư mục có thể lồng nhau, nhưng trong mỗi thư mục bắt buộc phải có:
+>
+> * File chứa các hàm gọi API
+> * File định nghĩa kiểu dữ liệu (type)
 
-下面是一个典型的目录结构 [`src/api/user`](https://github.com/condorheroblog/react-antd-admin/tree/main/src/api/user)：
+Dưới đây là một cấu trúc thư mục tiêu biểu: `src/api/user`:
 
 ```zsh
 ├── api
-│   └── user                  # 用户页面, 按照页面划分 api
-│       ├── index.ts          # 请求接口文件
-│       └── types.ts          # 类型定义文件
+│   └── user                  # Trang người dùng, API được chia theo từng trang
+│       ├── index.ts          # File định nghĩa các API request
+│       └── types.ts          # File định nghĩa kiểu dữ liệu
 ```
 
-如果页面下有页面，则可以继续嵌套目录，例如：[`src/api/system`](https://github.com/condorheroblog/react-antd-admin/tree/main/src/api/system)。
+Nếu trong một trang còn có các trang con, bạn có thể tiếp tục lồng thêm thư mục, ví dụ: `src/api/system`.
 
-## 文件说明
+---
 
-### 类型定义文件
+## Mô tả các file
 
-类型变量名一般以对应的页面名作为开始，以 `Type` 结尾，例如：
+### File định nghĩa kiểu dữ liệu (types)
+
+Tên của các interface/type thường bắt đầu bằng tên trang tương ứng và kết thúc bằng hậu tố `Type`, ví dụ:
 
 ```ts
 export interface RoleItemType {
@@ -31,16 +37,20 @@ export interface RoleItemType {
 }
 ```
 
-### 请求接口文件
+---
 
-一个经典的请求接口文件如下所示：
+### File định nghĩa request API
 
-> 请求充分利用了 HTTP 方法，request.get、request.post 等，忽略加载动画通过 `ignoreLoading` 参数实现。
+Một file request API tiêu chuẩn có dạng như sau:
 
-特别注意：
+> Các request tận dụng đầy đủ các HTTP method như `request.get`, `request.post`, …
+> Việc bỏ qua animation loading được thực hiện thông qua tham số `ignoreLoading`.
 
-1. GET 请求的参数放在 `searchParams` 对象中，POST、PUT 等请求的参数放在 `json` 对象中。
-2. 请求的路径不能以 `/` 开头。
+Lưu ý quan trọng:
+
+1. Với request **GET**, tham số truyền vào phải đặt trong object `searchParams`.
+   Với các request **POST**, **PUT**, … tham số phải đặt trong object `json`.
+2. Đường dẫn API **không được bắt đầu bằng dấu `/`**.
 
 ```ts
 import type { RoleItemType } from "./types";
@@ -48,27 +58,48 @@ import { request } from "#src/utils/request";
 
 export * from "./types";
 
-/* 获取角色列表 */
+/* Lấy danh sách role */
 export function fetchRoleList(data: any) {
-	return request.get<ApiListResponse<RoleItemType>>("role-list", { searchParams: data, ignoreLoading: true }).json();
+	return request.get<ApiListResponse<RoleItemType>>(
+		"role-list",
+		{ searchParams: data, ignoreLoading: true }
+	).json();
 }
 
-/* 新增角色 */
+/* Thêm role mới */
 export function fetchAddRoleItem(data: RoleItemType) {
-	return request.post<ApiResponse<string>>("role-item", { json: data, ignoreLoading: true }).json();
+	return request.post<ApiResponse<string>>(
+		"role-item",
+		{ json: data, ignoreLoading: true }
+	).json();
 }
 
-/* 修改角色 */
+/* Cập nhật role */
 export function fetchUpdateRoleItem(data: RoleItemType) {
-	return request.put<ApiResponse<string>>("role-item", { json: data, ignoreLoading: true }).json();
+	return request.put<ApiResponse<string>>(
+		"role-item",
+		{ json: data, ignoreLoading: true }
+	).json();
 }
 
-/* 删除角色 */
+/* Xóa role */
 export function fetchDeleteRoleItem(id: number) {
-	return request.delete<ApiResponse<string>>("role-item", { json: id, ignoreLoading: true }).json();
+	return request.delete<ApiResponse<string>>(
+		"role-item",
+		{ json: id, ignoreLoading: true }
+	).json();
 }
 ```
 
-## `request.ts` 介绍
+---
 
-`request.ts` 是封装了 `[Ky](https://github.com/sindresorhus/ky)` 的请求库，代码实现请看 `[src/utils/request](https://github.com/condorheroblog/react-antd-admin/tree/main/src/utils/request)`。
+## Giới thiệu `request.ts`
+
+`request.ts` là file dùng để **wrapper (đóng gói)** thư viện gọi HTTP **Ky**.
+Chi tiết cách triển khai có thể xem tại: `src/utils/request`.
+
+File này giúp:
+
+* Chuẩn hóa cách gọi API trong toàn bộ project
+* Quản lý loading, error, header, token… tập trung tại một nơi
+* Giảm code lặp lại khi viết các hàm request
