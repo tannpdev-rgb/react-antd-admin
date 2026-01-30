@@ -1,62 +1,78 @@
-# 路由
+# Routing (Định tuyến)
 
-项目路由使用 React Router，虽然使用的是最新 V7 版本，但是推荐阅读 V6 文档 - https://reactrouter.com/en/6.28.1/ ，两个文档都挺烂的。
+Dự án sử dụng **React Router** để quản lý routing.
+Mặc dù đang dùng phiên bản mới nhất là **v7**, nhưng tác giả khuyến nghị nên đọc **tài liệu v6** tại:
+[https://reactrouter.com/en/6.28.1/](https://reactrouter.com/en/6.28.1/)
 
-## 路由目录
+(Lý do đơn giản: cả hai bộ tài liệu đều không thật sự dễ đọc.)
+
+---
+
+## Thư mục routing
 
 ```bash
 ├── router
-│   ├── constants.ts                      # 路由白名单
-│   ├── extra-info                        # 路由额外信息
+│   ├── constants.ts                      # Danh sách route trắng (không cần đăng nhập)
+│   ├── extra-info                        # Thông tin mở rộng cho route
 │   │   ├── index.ts
-│   │   ├── route-path.ts                 # 路由路径，用于路由跳转时使用，统一一处，便于修改路径
-│   │   └── order.ts                      # 路由菜单顺序
-│   ├── guards.tsx                        # 路由守卫
-│   ├── router-global-hooks.ts            # 路由全局钩子
+│   │   ├── route-path.ts                 # Định nghĩa path route, dùng cho điều hướng
+│   │   │                                # Gom về một chỗ để dễ chỉnh sửa
+│   │   └── order.ts                      # Thứ tự hiển thị menu route
+│   ├── guards.tsx                        # Route guard (bảo vệ route)
+│   ├── router-global-hooks.ts            # Hook toàn cục cho routing
 │   ├── routes
-│   │   ├── core                          # 核心路由
-│   │   ├── modules                       # 动态路由
-│   │   └── static                        # 静态路由
-│   ├── types.ts                          # 路由类型定义
-│   └── utils.ts                          # 路由工具函数
+│   │   ├── core                          # Các route cốt lõi
+│   │   ├── modules                       # Route động (dynamic route)
+│   │   └── static                        # Route tĩnh
+│   ├── types.ts                          # Định nghĩa type cho routing
+│   └── utils.ts                          # Các hàm tiện ích cho routing
 ```
 
-## 路由组件
+---
 
-只列举项目中常用的：
+## Component routing
 
-| 组件名      | 作用         | 说明              |
-|-------------|------------|-----------------|
-| `<Link>`    | 导航组件     | 进行页面跳转使用  |
-| `<Outlet/>` | 渲染容器组件 | 用来呈现嵌套路由。 |
+Chỉ liệt kê các component thường dùng trong dự án:
+
+| Tên component | Chức năng        | Mô tả                                     |
+| ------------- | ---------------- | ----------------------------------------- |
+| `<Link>`      | Điều hướng       | Dùng để chuyển trang                      |
+| `<Outlet />`  | Container render | Dùng để hiển thị route con (nested route) |
+
+---
 
 ## Hooks
 
 ### useMatches
 
-返回当前路由匹配的所有路由对象
+Trả về **tất cả các route** đang khớp với route hiện tại.
 
 ```ts
 import { useMatches } from "react-router";
 const matches = useMatches();
 console.log(matches);
-// 输出：[{ pathname: '/path', params: {}, data: {} }, ...]
+// Kết quả: [{ pathname: '/path', params: {}, data: {} }, ...]
 ```
 
-基于 `useMatches()` 项目封装了 `useCurrentRoute` hook，可以获取当前最新的路由信息。
+Từ `useMatches()` dự án đã tự đóng gói thêm hook `useCurrentRoute`
+→ giúp lấy thông tin **route hiện tại mới nhất** một cách thuận tiện hơn.
+
+---
 
 ### useParams
 
-返回动态路由的参数
+Dùng để lấy **tham số của route động**.
 
 ```ts
 import { useParams } from "react-router";
 const { id: templateId } = useParams<{ id: string }>();
 ```
 
+---
+
 ### useNavigate
 
-路由跳转
+Dùng để **chuyển route bằng code**.
 
 ```ts
 import { useNavigate } from "react-router";
@@ -64,49 +80,65 @@ const navigate = useNavigate();
 navigate("/path");
 ```
 
+---
+
 ### useLocation
 
-返回当前的 location 对象
+Trả về object `location` của route hiện tại.
 
 ```ts
 import { useLocation } from "react-router";
 const location = useLocation();
 console.log(location);
-// 输出：{ pathname: '/path', search: '?x=1&y=2', hash: '', state: null, key: 'default' }
+// Kết quả: 
+// { pathname: '/path', search: '?x=1&y=2', hash: '', state: null, key: 'default' }
 ```
+
+---
 
 ### useSearchParams
 
-匹配路由 Query 参数（查询参数）
+Dùng để đọc **query parameters** trên URL.
 
 ```ts
 import { useSearchParams } from "react-router";
 const [searchParams] = useSearchParams();
-console.log(searchParams.get("x")); // 输出 x 的值
+console.log(searchParams.get("x")); // Giá trị của tham số x
 ```
 
-> 推荐使用 [nuqs](https://nuqs.47ng.com/) 替代 useSearchParams 进行业务开发，[nuqs](https://nuqs.47ng.com/)  可以像使用 useState 一样简洁管理**查询参数**。
+> Khuyến nghị dùng **nuqs** thay cho `useSearchParams` khi làm nghiệp vụ.
+> `nuqs` cho phép quản lý **query parameters** đơn giản như `useState`.
 
 ```ts
 import { useQueryState } from "nuqs";
 const [hello, setHello] = useQueryState("hello", { defaultValue: "" });
 ```
 
+---
+
 ### useOutlet
 
-返回根据路由生成的 element
+Trả về **React element** được tạo ra từ route hiện tại.
 
 ```ts
 import { useOutlet } from "react-router";
 const outlet = useOutlet();
-console.log(outlet); // 输出：<div>...</div>
+console.log(outlet); // Ví dụ: <div>...</div>
 ```
 
-路由的缓存使用这个 API 实现。
+Cơ chế **cache route** trong dự án được xây dựng dựa trên API này.
 
-## 路由守卫和路由钩子
+---
 
-路由守卫和路由钩子在 `src/router/guard` 中定义。
+## Route Guard và Route Hook
 
-- `auth-guard.tsx` 路由守卫，用于权限校验
-- `common-gurard.ts` 无权限校验逻辑，支持加载动画等拦截功能
+Route guard và route hook được định nghĩa trong thư mục `src/router/guard`.
+
+* `auth-guard.tsx`
+  Route guard dùng để **kiểm tra quyền truy cập**
+
+* `common-gurard.ts`
+  Không kiểm tra quyền, nhưng hỗ trợ các logic chặn chung như:
+
+  * Hiển thị loading
+  * Xử lý trước / sau khi chuyển route
